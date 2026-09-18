@@ -30,34 +30,48 @@ function redo(){if(!S.future.length)return;S.history.push({edit:cloneEdit(photo(
 $('.undo').onclick=undo;$('.redo').onclick=redo;
 function addPhoto(file){
   if(!file)return;
-  if(!file.type || !file.type.startsWith('image/')){
-    toast('Please select a JPG, PNG, or WebP picture');
-    return;
-  }
+  const isImage=(file.type&&file.type.startsWith('image/'))||/\.(jpe?g|png|webp|gif|bmp)$/i.test(file.name||'');
+  if(!isImage){toast('Please select a picture file');return}
   const reader=new FileReader();
-  reader.onload=()=>{
+  reader.onload=function(){
+    const src=reader.result;
     const im=new Image();
-    im.onload=()=>{
-      if(!im.naturalWidth||!im.naturalHeight){toast('This picture could not be loaded');return}
-      S.photos.push({id:Date.now()+Math.random(),name:file.name||'photo',img:im,edit:cloneEdit(DEFAULT)});
+    im.onload=function(){
+      if(!im.naturalWidth||!im.naturalHeight){toast('Could not load this picture');return}
+      // Show the selected picture immediately, before any editor code runs.
+      const beforePreview=$('#beforeImage'),afterPreview=$('#afterImage');
+      if(beforePreview&&afterPreview){
+        beforePreview.src=src;
+        afterPreview.src=src;
+        beforePreview.style.display='block';
+        afterPreview.style.display='block';
+        $('#beforeEmpty').style.display='none';
+        $('#afterEmpty').style.display='none';
+      }
+      const item={id:Date.now()+Math.random(),name:file.name||'photo',img:im,edit:cloneEdit(DEFAULT)};
+      S.photos.push(item);
       S.active=S.photos.length-1;
       S.history=[];S.future=[];
-      renderThumbs();render();renderPanel();
+      try{renderThumbs()}catch(err){console.error('Duskreel thumbnails:',err)}
+      try{render()}catch(err){console.error('Duskreel render:',err)}
+      try{renderPanel()}catch(err){console.error('Duskreel panel:',err)}
       toast('Picture loaded — ready to edit');
     };
-    im.onerror=()=>toast('This picture format cannot be displayed. Try JPG, PNG, or WebP.');
-    im.src=reader.result;
+    im.onerror=function(){toast('This picture cannot be displayed. Try JPG or PNG.')};
+    im.src=src;
   };
-  reader.onerror=()=>toast('Could not read the selected picture');
+  reader.onerror=function(){toast('Could not read the selected picture')};
   reader.readAsDataURL(file);
 }
 const fileInput=$('#duskreelFileInput');
 if(fileInput){
-  fileInput.addEventListener('change',e=>{
-    const files=[...e.target.files||[]];
+  const handleFiles=e=>{
+    const files=Array.from(e.target.files||[]);
+    if(files.length)files.forEach(addPhoto);
     e.target.value='';
-    files.forEach(addPhoto);
-  });
+  };
+  fileInput.addEventListener('change',handleFiles);
+  fileInput.addEventListener('input',handleFiles);
 }
 function fitRect(w,h,boxw,boxh){const k=Math.min(boxw/w,boxh/h);return [Math.max(1,w*k),Math.max(1,h*k)]}
 function filterString(e){const b=1+e.brightness/100+e.exposure/180,c=1+e.contrast/100,s=1+e.saturation/100;let f=`brightness(${b}) contrast(${c}) saturate(${s})`;const ef=EFFECTS.find(x=>x.id===e.effect);f+=ef?(' '+ef.filter):'';if(e.blur)f+=' blur('+e.blur+'px)';return f}

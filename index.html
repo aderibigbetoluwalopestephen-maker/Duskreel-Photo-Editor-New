@@ -66,10 +66,10 @@ const fileInput=$('#duskreelFileInput');
 if(fileInput){
   fileInput.addEventListener('change',e=>{
     const files=Array.from(e.target.files||[]);
-    e.target.value='';
     if(!files.length)return;
     files.forEach(addPhoto);
-  })
+    e.target.value='';
+  });
 }
 function fitRect(w,h,boxw,boxh){const k=Math.min(boxw/w,boxh/h);return [Math.max(1,w*k),Math.max(1,h*k)]}
 function filterString(e){const b=1+e.brightness/100+e.exposure/180,c=1+e.contrast/100,s=1+e.saturation/100;let f=`brightness(${b}) contrast(${c}) saturate(${s})`;const ef=EFFECTS.find(x=>x.id===e.effect);f+=ef?(' '+ef.filter):'';if(e.blur)f+=' blur('+e.blur+'px)';return f}

@@ -30,45 +30,46 @@ function redo(){if(!S.future.length)return;S.history.push({edit:cloneEdit(photo(
 $('.undo').onclick=undo;$('.redo').onclick=redo;
 function addPhoto(file){
   if(!file)return;
-  const name=(file.name||'photo').toLowerCase();
-  const allowed=/\\.(jpe?g|png|webp|gif|bmp)$/i.test(name)||!file.type||file.type.startsWith('image/');
-  if(!allowed){toast('Please choose an image file');return}
-  const finish=(src)=>{
+  if(!file.type || !file.type.startsWith('image/')){
+    toast('Please select a JPG, PNG, or WebP picture');
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=()=>{
     const im=new Image();
     im.onload=()=>{
-      try{
-        if(!im.naturalWidth||!im.naturalHeight){toast('Could not read this picture');return}
-        S.photos.push({id:Date.now()+Math.random(),name:file.name||'photo',img:im,edit:cloneEdit(DEFAULT)});
-        S.active=S.photos.length-1;
-        S.history=[];S.future=[];
-        try{renderThumbs()}catch(err){console.error('Duskreel thumbnails:',err)}
-        try{render()}catch(err){console.error('Duskreel render:',err);toast('Photo loaded, but display needs refresh')}
-        try{renderPanel()}catch(err){console.error('Duskreel panel:',err)}
-        toast('Photo added');
-      }catch(err){console.error('Duskreel photo setup:',err);toast('Photo loaded but could not be displayed')}
+      if(!im.naturalWidth||!im.naturalHeight){
+        toast('This picture could not be loaded');
+        return;
+      }
+      S.photos.push({
+        id:Date.now()+Math.random(),
+        name:file.name||'photo',
+        img:im,
+        edit:cloneEdit(DEFAULT)
+      });
+      S.active=S.photos.length-1;
+      S.history=[];
+      S.future=[];
+      renderThumbs();
+      render();
+      renderPanel();
+      toast('Picture loaded — ready to edit');
     };
-    im.onerror=()=>toast('This picture format is not supported by your browser');
-    im.src=src
+    im.onerror=()=>{
+      toast('This picture format cannot be displayed. Try JPG, PNG, or WebP.');
+    };
+    im.src=reader.result;
   };
-  try{
-    const url=URL.createObjectURL(file);
-    finish(url);
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
-  }catch(err){
-    console.error('Duskreel object URL:',err);
-    const reader=new FileReader();
-    reader.onload=ev=>finish(ev.target.result);
-    reader.onerror=()=>toast('Could not read the selected picture');
-    reader.readAsDataURL(file)
-  }
+  reader.onerror=()=>toast('Could not read the selected picture');
+  reader.readAsDataURL(file);
 }
 const fileInput=$('#duskreelFileInput');
 if(fileInput){
   fileInput.addEventListener('change',e=>{
-    const files=Array.from(e.target.files||[]);
-    if(!files.length)return;
-    files.forEach(addPhoto);
+    const files=[...e.target.files||[]];
     e.target.value='';
+    files.forEach(addPhoto);
   });
 }
 function fitRect(w,h,boxw,boxh){const k=Math.min(boxw/w,boxh/h);return [Math.max(1,w*k),Math.max(1,h*k)]}

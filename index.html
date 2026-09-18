@@ -38,27 +38,14 @@ function addPhoto(file){
   reader.onload=()=>{
     const im=new Image();
     im.onload=()=>{
-      if(!im.naturalWidth||!im.naturalHeight){
-        toast('This picture could not be loaded');
-        return;
-      }
-      S.photos.push({
-        id:Date.now()+Math.random(),
-        name:file.name||'photo',
-        img:im,
-        edit:cloneEdit(DEFAULT)
-      });
+      if(!im.naturalWidth||!im.naturalHeight){toast('This picture could not be loaded');return}
+      S.photos.push({id:Date.now()+Math.random(),name:file.name||'photo',img:im,edit:cloneEdit(DEFAULT)});
       S.active=S.photos.length-1;
-      S.history=[];
-      S.future=[];
-      renderThumbs();
-      render();
-      renderPanel();
+      S.history=[];S.future=[];
+      renderThumbs();render();renderPanel();
       toast('Picture loaded — ready to edit');
     };
-    im.onerror=()=>{
-      toast('This picture format cannot be displayed. Try JPG, PNG, or WebP.');
-    };
+    im.onerror=()=>toast('This picture format cannot be displayed. Try JPG, PNG, or WebP.');
     im.src=reader.result;
   };
   reader.onerror=()=>toast('Could not read the selected picture');

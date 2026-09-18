@@ -1,0 +1,10 @@
+{
+  "name":"Duskreel Photo Editor",
+  "short_name":"Duskreel",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#030303",
+  "theme_color":"#050505",
+  "description":"Duskreel professional photo editor",
+  "icons":[{"src":"assets/duskreel-logo.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

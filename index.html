@@ -138,7 +138,9 @@ const FRAMES=(()=>{const out=[{id:'none',name:'No Frame'}];const styles=['Classi
 <div class="row"><label>Clean picture</label><span class="val">${e.clean||0}%</span></div><input id="cleanLevel" type="range" min="0" max="100" value="${e.clean||0}">
 <button class="mini" id="cleanAuto" style="width:100%;margin-top:8px">✨ Auto Clean</button>
 <div class="row"><label>Auto face spot removal</label><span class="val">${e.faceClean||0}%</span></div><input id="faceClean" type="range" min="0" max="100" value="${e.faceClean||0}">
-<button class="mini" id="faceAuto" style="width:100%;margin-top:8px">✨ Clean Face Spots</button><p class="hint">Local portrait cleanup targets likely skin areas and small dark blemishes.</p>
+<button class="mini" id="faceAuto" style="width:100%;margin-top:8px">✨ Clean Face Spots</button>
+<button class="mini" id="faceSmoothAuto" style="width:100%;margin-top:7px">✨ Auto Smooth Face</button>
+<p class="hint">Smooths likely facial skin while preserving stronger edges. Runs locally in the browser.</p>
 </div>
 <div class="section"><div class="row"><label>Background</label><span class="val">${e.bgRemove?'Removed':'Original'}</span></div>
 <button class="mini" id="removeBg" style="width:100%">${e.bgRemove?'✓ Background Removed':'Remove Background'}</button>
@@ -171,6 +173,7 @@ cropFields.forEach(id=>{$('#'+id)?.addEventListener('input',e=>{
 $('#cleanAuto')?.addEventListener('click',()=>{snapshot();p.edit.clean=55;toast('Picture cleaned');renderPanel();render()});
 $('#faceClean')?.addEventListener('input',e=>{p.edit.faceClean=+e.target.value;render()});
 $('#faceAuto')?.addEventListener('click',()=>{snapshot();p.edit.faceClean=70;toast('Face spots cleaned');renderPanel();render()});
+$('#faceSmoothAuto')?.addEventListener('click',()=>{snapshot();p.edit.faceClean=58;p.edit.clean=Math.max(p.edit.clean||0,12);toast('Face smoothed automatically');renderPanel();render()});
 $('#removeBg')?.addEventListener('click',()=>{snapshot();p.edit.bgRemove=!p.edit.bgRemove;if(!p.edit.bgRemove)p.edit.bgReplace='none';toast(p.edit.bgRemove?'Background removed':'Original background restored');renderPanel();render()});
 $('#bgTolerance')?.addEventListener('input',e=>{p.edit.bgTolerance=+e.target.value;renderPanel();render()});
 $('[data-bg]').forEach(b=>b.onclick=()=>{snapshot();p.edit.bgReplace=b.dataset.bg;if(b.dataset.bg!=='none')p.edit.bgRemove=true;renderPanel();render()});

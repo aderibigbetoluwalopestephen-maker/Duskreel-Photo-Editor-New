@@ -181,7 +181,7 @@ $('#faceAuto')?.addEventListener('click',()=>{snapshot();p.edit.faceClean=70;toa
 $('#faceSmoothAuto')?.addEventListener('click',()=>{snapshot();p.edit.faceClean=58;p.edit.clean=Math.max(p.edit.clean||0,12);toast('Face smoothed automatically');renderPanel();render()});
 $('#removeBg')?.addEventListener('click',()=>{snapshot();p.edit.bgRemove=!p.edit.bgRemove;if(!p.edit.bgRemove)p.edit.bgReplace='none';toast(p.edit.bgRemove?'Background removed':'Original background restored');renderPanel();render()});
 $('#bgTolerance')?.addEventListener('input',e=>{p.edit.bgTolerance=+e.target.value;renderPanel();render()});
-$('[data-bg]').forEach(b=>b.onclick=()=>{snapshot();p.edit.bgReplace=b.dataset.bg;if(b.dataset.bg!=='none')p.edit.bgRemove=true;renderPanel();render()});
+$$('[data-bg]').forEach(b=>b.onclick=()=>{snapshot();p.edit.bgReplace=b.dataset.bg;if(b.dataset.bg!=='none')p.edit.bgRemove=true;renderPanel();render()});
 $('#bgColor')?.addEventListener('input',e=>{p.edit.bgColor=e.target.value;p.edit.bgRemove=true;p.edit.bgReplace='color';render()});
 $('#uploadBg')?.addEventListener('click',()=>$('#bgInput').click());
 $('#bgInput')?.addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{S.bgImage=im;S.bgName=file.name;p.edit.bgRemove=true;p.edit.bgReplace='image';renderPanel();render();toast('Replacement background added')};im.src=r.result};r.readAsDataURL(file)});
